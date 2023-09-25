@@ -1,48 +1,8 @@
 #include <set>
 #include "BZ.h"
 #include "zdd.h"    
-#include "generator.hpp"
+#include "zdd_generators.h"
 
-
-template<class T> // Intelisens not working properly. This is a workaround
-generator<bool> loop2(zdd* node, std::set<int>* current_set, std::set<int>* new_set)
-{
-    if (node == empty()) {
-
-    }
-    else if (node == base())
-    {
-        co_yield true;
-    }
-    else {
-        co_yield loop2<T>(node->left, current_set, new_set);
-        if(new_set->contains(node->value)){
-            current_set->insert(node->value);
-            co_yield loop2<T>(node->right, current_set, new_set);
-            current_set->erase(node->value);
-        }
-    }
-}
-
-template<class T> // Intelisens not working properly. This is a workaround
-generator<bool> loop1(zdd* node, std::set<int>* current_set, std::set<int>* new_conflict)
-{
-    if (node == empty()) {
-
-    }
-    else if (node == base())
-    {
-        co_yield true;
-    }
-    else {
-        co_yield loop1<T>(node->left, current_set, new_conflict);       
-        if(!new_conflict->contains(node->value)){
-            current_set->insert(node->value);
-            co_yield loop1<T>(node->right, current_set, new_conflict);
-            current_set->erase(node->value);
-        }
-    }
-}
 
 
 zdd* BZIteration(ZddManager* m, zdd* minimal_diagnoses, std::set<int> new_conflict)
@@ -55,7 +15,7 @@ zdd* BZIteration(ZddManager* m, zdd* minimal_diagnoses, std::set<int> new_confli
 
     std::set<int> first_loop_set_location;
 
-    auto gen_loop1 = loop1<char>(old, &first_loop_set_location, &new_conflict);
+    auto gen_loop1 = zdd_with_constraint_1(old, &first_loop_set_location, &new_conflict);
 
     while(gen_loop1.move_next()){
         old = zdd_difference(m, old, single_set_to_zdd(m, first_loop_set_location));
@@ -65,7 +25,7 @@ zdd* BZIteration(ZddManager* m, zdd* minimal_diagnoses, std::set<int> new_confli
             new_set.insert(c);
             bool add_new_set = true;
             std::set<int> second_loop_location;
-            auto loop2_gen = loop2<char>(minimal_diagnoses, &second_loop_location, &new_set);
+            auto loop2_gen = zdd_with_constraint_2(minimal_diagnoses, &second_loop_location, &new_set);
             while(loop2_gen.move_next())
             {
                 if(second_loop_location != first_loop_set_location)

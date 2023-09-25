@@ -1,25 +1,7 @@
 #include <set>
 #include "BZU.h"
 #include "zdd.h"
-#include "generator.hpp"
-
-template<class T> // Intelisens not working properly. This is a workaround
-generator<bool> zdd_sets(zdd* node, std::set<int>* current_set)
-{
-    if (node == empty()) {
-
-    }
-    else if (node == base())
-    {
-        co_yield true;
-    }
-    else {
-        co_yield zdd_sets<T>(node->left, current_set);
-        current_set->insert(node->value);
-        co_yield zdd_sets<T>(node->right, current_set);
-        current_set->erase(node->value);
-    }
-}
+#include "zdd_generators.h"
 
 
 zdd* BZUIteration(ZddManager* m, zdd* minimal_diagnoses, std::set<int> new_conflict)
@@ -32,7 +14,7 @@ zdd* BZUIteration(ZddManager* m, zdd* minimal_diagnoses, std::set<int> new_confl
 
     std::set<int> first_loop_set_location;
 
-    auto loop1 = zdd_sets<char>(old, &first_loop_set_location);
+    auto loop1 = zdd_sets(old, &first_loop_set_location);
 
     while(loop1.move_next()){
         std::set<int> intersection;
@@ -46,7 +28,7 @@ zdd* BZUIteration(ZddManager* m, zdd* minimal_diagnoses, std::set<int> new_confl
                 new_set.insert(c);
                 bool add_new_set = true;
                 std::set<int> second_loop_location;
-                auto loop2 = zdd_sets<char>(minimal_diagnoses, &second_loop_location);
+                auto loop2 = zdd_sets(minimal_diagnoses, &second_loop_location);
                 while(loop2.move_next())
                 {
                     if(second_loop_location != first_loop_set_location)
