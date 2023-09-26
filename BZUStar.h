@@ -4,7 +4,7 @@
 #include <set>
 #include "zdd.h"
 
-zdd* BZUStar(std::set<std::set<int>> problem);
+zdd* BZUStar(std::set<std::set<int>>* problem);
 zdd* BZUStarIteration(ZddManager* m, zdd* minimal_diagnoses, std::set<int> new_conflict);
 
 #endif // BZUSTAR_H

@@ -4,16 +4,30 @@
 
 using namespace std;
 
-set<set<int>> BergeIteration(set<set<int>> minimal_diagnoses, set<int> new_conflict)
+bool empty_intersection(const set<int>& x, const set<int>& y)
 {
-    set<set<int>> old = set<set<int>>(minimal_diagnoses);
+    set<int>::const_iterator i = x.begin();
+    set<int>::const_iterator j = y.begin();
+    while (i != x.end() && j != y.end())
+    {
+      if (*i == *j)
+        return false;
+      else if (*i < *j)
+        ++i;
+      else
+        ++j;
+    }
+    return true;
+}
+
+set<set<int>> BergeIteration(set<set<int>>* minimal_diagnoses, set<int> new_conflict)
+{
+    set<set<int>> old = set<set<int>>(*minimal_diagnoses);
     set<set<int>> add = set<set<int>>();
 
-    for (set<int> minimal_diagnosis : minimal_diagnoses)
+    for (set<int> minimal_diagnosis : *minimal_diagnoses)
     {
-        set<int> intersection;
-        set_intersection(minimal_diagnosis.begin(), minimal_diagnosis.end(), new_conflict.begin(), new_conflict.end(), inserter(intersection, intersection.end()));
-        if (intersection.size() == 0) 
+        if (empty_intersection(minimal_diagnosis, new_conflict)) 
         {
             old.erase(minimal_diagnosis);
             for (int c : new_conflict)
@@ -21,7 +35,7 @@ set<set<int>> BergeIteration(set<set<int>> minimal_diagnoses, set<int> new_confl
                 set<int> new_set = set<int>(minimal_diagnosis);
                 new_set.insert(c);
                 bool add_new_set = true;
-                for (set<int> k : minimal_diagnoses)
+                for (set<int> k : *minimal_diagnoses)
                 {
                     if(k != minimal_diagnosis)
                     {
@@ -43,17 +57,17 @@ set<set<int>> BergeIteration(set<set<int>> minimal_diagnoses, set<int> new_confl
     return old;
 }
 
-std::set<std::set<int>> Berge(std::set<std::set<int>> problem)
+std::set<std::set<int>> Berge(std::set<std::set<int>>* problem)
 {
     std::set<std::set<int>> MHSes = {};
-    for (auto set : problem)
+    for (auto set : *problem)
     {
         if(MHSes.size() == 0){
             for(int i : set)
                 MHSes.insert({i});
         }
         else{
-            MHSes = BergeIteration(MHSes, set);
+            MHSes = BergeIteration(&MHSes, set);
         }
     }
     return MHSes;

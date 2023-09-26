@@ -54,11 +54,11 @@ zdd* BZUIteration(ZddManager* m, zdd* minimal_diagnoses, std::set<int> new_confl
     return result;
 }
 
-zdd* BZU(std::set<std::set<int>> problem)
+zdd* BZU(std::set<std::set<int>>* problem)
 {
     ZddManager m = ZddManager(100, 1000);
     zdd* MHSes = empty();
-    for (auto set : problem)
+    for (auto set : *problem)
     {
         if(MHSes == empty()){
             for(int i : set)

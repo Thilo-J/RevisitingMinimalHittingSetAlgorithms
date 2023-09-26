@@ -52,11 +52,11 @@ zdd* BZUStarIteration(ZddManager* m, zdd* minimal_diagnoses, std::set<int> new_c
     return result;
 }
 
-zdd* BZUStar(std::set<std::set<int>> problem)
+zdd* BZUStar(std::set<std::set<int>>* problem)
 {
     ZddManager m = ZddManager(100, 1000);
     zdd* MHSes = empty();
-    for (auto set : problem)
+    for (auto set : *problem)
     {
         if(MHSes == empty()){
             for(int i : set)
